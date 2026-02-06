@@ -1,0 +1,13 @@
+node_modules
+/.next/
+/out/
+.env.local
+.env
+*.log
+.DS_Store
+.vscode
+.idea
+dist
+convex/_generated
+*.tsbuildinfo
+next-env.d.ts
