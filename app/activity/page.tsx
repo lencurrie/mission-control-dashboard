@@ -1,5 +1,5 @@
-import { DashboardLayout } from "./components/DashboardLayout";
-import { ActivityFeed } from "./components/ActivityFeed";
+import { DashboardLayout } from "../components/DashboardLayout";
+import { ActivityFeed } from "../components/ActivityFeed";
 
 export default function ActivityPage() {
   return (
