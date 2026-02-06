@@ -82,7 +82,7 @@ export function ActivityStats() {
           Action Types
         </h3>
         <div className="space-y-2">
-          {Object.entries(stats.actionTypeCounts).map(([type, count]) => (
+          {(Object.entries(stats.actionTypeCounts) as [string, number][]).map(([type, count]) => (
             <div key={type} className="flex items-center justify-between">
               <span className="text-sm text-gray-600 capitalize">
                 {type.replace("_", " ")}
@@ -109,7 +109,7 @@ export function ActivityStats() {
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <h3 className="text-sm font-medium text-gray-700 mb-3">Status Distribution</h3>
         <div className="flex gap-4">
-          {Object.entries(stats.statusCounts).map(([status, count]) => (
+          {(Object.entries(stats.statusCounts) as [string, number][]).map(([status, count]) => (
             <div
               key={status}
               className={`flex-1 p-3 rounded-lg ${

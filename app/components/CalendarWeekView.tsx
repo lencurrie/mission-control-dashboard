@@ -70,7 +70,7 @@ export function CalendarWeekView({ onTaskClick, onCreateTask }: CalendarWeekView
   const goToToday = () => setCurrentWeek(new Date());
 
   const getTasksForDay = (day: Date) => {
-    return tasks.filter((task) => {
+    return tasks.filter((task: Task) => {
       const taskDate = new Date(task.scheduledTime);
       return isSameDay(taskDate, day);
     });
@@ -156,7 +156,7 @@ export function CalendarWeekView({ onTaskClick, onCreateTask }: CalendarWeekView
               } ${isTodayDate ? "bg-blue-50/30" : ""}`}
             >
               <div className="space-y-1">
-                {dayTasks.map((task) => (
+                {dayTasks.map((task: Task) => (
                   <div
                     key={task._id}
                     onClick={(e) => {

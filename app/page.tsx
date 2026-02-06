@@ -1,9 +1,6 @@
+"use client";
+
 import { DashboardLayout } from "./components/DashboardLayout";
-import { ActivityFeed } from "./components/ActivityFeed";
-import { CalendarWeekView } from "./components/CalendarWeekView";
-import { GlobalSearch } from "./components/GlobalSearch";
-import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
 import {
   Activity,
   Calendar,
@@ -11,11 +8,26 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
+  BarChart3,
+  TrendingUp,
+  Zap,
+  Settings,
 } from "lucide-react";
 
 export default function Home() {
-  const activityStats = useQuery(api.activities.getActivityStats);
-  const taskStats = useQuery(api.tasks.getTaskStats);
+  // Mock data for static deployment
+  const activityStats = {
+    totalActivities: 0,
+    last24Hours: 0,
+  };
+  
+  const taskStats = {
+    pending: 0,
+    overdue: 0,
+    completed: 0,
+    total: 0,
+    running: 0,
+  };
 
   return (
     <DashboardLayout>
@@ -28,83 +40,137 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Global Search */}
+        {/* Global Search Placeholder */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <GlobalSearch />
+          <div className="flex items-center gap-3 text-gray-400">
+            <Search className="w-5 h-5" />
+            <span>Search across memories, docs, activities, and tasks...</span>
+          </div>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Total Activities"
-            value={activityStats?.totalActivities || 0}
-            subtitle={`${activityStats?.last24Hours || 0} in last 24h`}
+            value={activityStats.totalActivities}
+            subtitle={`${activityStats.last24Hours} in last 24h`}
             icon={<Activity className="w-5 h-5 text-blue-500" />}
             color="blue"
           />
           <StatCard
             title="Pending Tasks"
-            value={taskStats?.pending || 0}
-            subtitle={`${taskStats?.overdue || 0} overdue`}
+            value={taskStats.pending}
+            subtitle={`${taskStats.overdue} overdue`}
             icon={<Clock className="w-5 h-5 text-yellow-500" />}
             color="yellow"
           />
           <StatCard
             title="Completed Tasks"
-            value={taskStats?.completed || 0}
-            subtitle={`${taskStats?.total || 0} total`}
+            value={taskStats.completed}
+            subtitle={`${taskStats.total} total`}
             icon={<CheckCircle className="w-5 h-5 text-green-500" />}
             color="green"
           />
           <StatCard
             title="Running Tasks"
-            value={taskStats?.running || 0}
+            value={taskStats.running}
             subtitle="Currently active"
             icon={<AlertCircle className="w-5 h-5 text-purple-500" />}
             color="purple"
           />
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Activity Feed */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-gray-500" />
-                Recent Activity
-              </h2>
-              <a
-                href="/activity"
-                className="text-sm text-blue-600 hover:text-blue-800"
-              >
-                View All
-              </a>
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Activity className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Activity Tracking</h2>
+                <p className="text-sm text-gray-500">Monitor AI assistant actions</p>
+              </div>
             </div>
-            <ActivityFeed limit={5} />
+            <p className="text-gray-600 mb-4">
+              Track file operations, tool calls, task executions, and memory searches in real-time.
+            </p>
+            <a 
+              href="/activity" 
+              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+            >
+              View Activity Log →
+            </a>
           </div>
 
-          {/* Calendar Preview */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-gray-500" />
-                This Week
-              </h2>
-              <a
-                href="/calendar"
-                className="text-sm text-blue-600 hover:text-blue-800"
-              >
-                View Full Calendar
-              </a>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Task Scheduling</h2>
+                <p className="text-sm text-gray-500">Schedule and manage tasks</p>
+              </div>
             </div>
-            <CalendarWeekView />
+            <p className="text-gray-600 mb-4">
+              Create reminders, schedule cron jobs, and manage recurring tasks with calendar view.
+            </p>
+            <a 
+              href="/calendar" 
+              className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 font-medium"
+            >
+              Open Calendar →
+            </a>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <Search className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Global Search</h2>
+                <p className="text-sm text-gray-500">Search across all data</p>
+              </div>
+            </div>
+            <p className="text-gray-600 mb-4">
+              Find memories, documents, activities, and tasks with advanced filtering and relevance scoring.
+            </p>
+            <a 
+              href="/search" 
+              className="inline-flex items-center gap-2 text-green-600 hover:text-green-800 font-medium"
+            >
+              Search Everything →
+            </a>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-orange-100 rounded-lg">
+                <BarChart3 className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Analytics</h2>
+                <p className="text-sm text-gray-500">View detailed metrics</p>
+              </div>
+            </div>
+            <p className="text-gray-600 mb-4">
+              Analyze activity patterns, task completion rates, and system performance over time.
+            </p>
+            <div className="flex items-center gap-2 text-orange-600 font-medium">
+              <TrendingUp className="w-4 h-4" />
+              <span>Coming Soon</span>
+            </div>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white">
-          <h2 className="text-lg font-semibold mb-2">Quick Actions</h2>
+          <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            Quick Actions
+          </h2>
           <p className="text-blue-100 mb-4">
             Common tasks to manage your AI assistant
           </p>
@@ -121,6 +187,20 @@ export default function Home() {
             <button className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-sm font-medium">
               Export Activity Log
             </button>
+          </div>
+        </div>
+
+        {/* Setup Notice */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <Settings className="w-5 h-5 text-yellow-600 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-yellow-800">Backend Setup Required</h3>
+              <p className="text-sm text-yellow-700 mt-1">
+                To enable full functionality, configure your Convex backend by running{' '}
+                <code className="bg-yellow-100 px-1 py-0.5 rounded">npx convex dev</code> and following the setup instructions.
+              </p>
+            </div>
           </div>
         </div>
       </div>

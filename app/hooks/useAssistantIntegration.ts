@@ -1,27 +1,58 @@
 // Integration hooks for capturing assistant actions
 // These functions can be called from the main AI assistant code
 
-import { useActivityLogger } from "../app/hooks/useActivityLogger";
-import { useTaskManager } from "../app/hooks/useTaskManager";
-import { useSearchIndex } from "../app/hooks/useSearchIndex";
+import { useActivityLogger } from "./useActivityLogger";
+import { useTaskManager } from "./useTaskManager";
+import { useSearchIndex } from "./useSearchIndex";
 
 // Re-export all hooks for convenience
 export { useActivityLogger, useTaskManager, useSearchIndex };
 
+// Types for logger functions
+type LogToolCallFn = (
+  toolName: string,
+  description: string,
+  options?: {
+    status?: "success" | "error" | "pending";
+    agentId?: string;
+    metadata?: any;
+  }
+) => Promise<any>;
+
+type LogFileOperationFn = (
+  operation: string,
+  filePath: string,
+  options?: {
+    status?: "success" | "error" | "pending";
+    agentId?: string;
+    metadata?: any;
+  }
+) => Promise<any>;
+
+type LogActivityFn = (
+  activity: {
+    actionType: string;
+    description: string;
+    status?: "success" | "error" | "pending";
+    agentId?: string;
+    metadata?: any;
+  }
+) => Promise<any>;
+
 // Helper to wrap tool calls with logging
+// Must be called from within a React component or hook
 export function withActivityLogging<T extends (...args: any[]) => any>(
   fn: T,
   options: {
     toolName: string;
     description: string;
     agentId?: string;
+    logToolCall: LogToolCallFn;
   }
 ): T {
   return (async (...args: any[]) => {
-    const { logToolCall } = useActivityLogger();
-    
     // Log the start of the tool call
-    await logToolCall(options.toolName, options.description, {
+    await options.logToolCall(options.toolName, options.description, {
       status: "pending",
       agentId: options.agentId,
     });
@@ -33,7 +64,7 @@ export function withActivityLogging<T extends (...args: any[]) => any>(
       const duration = Date.now() - startTime;
       
       // Log success
-      await logToolCall(options.toolName, `${options.description} - Success`, {
+      await options.logToolCall(options.toolName, `${options.description} - Success`, {
         status: "success",
         agentId: options.agentId,
         metadata: { duration },
@@ -44,7 +75,7 @@ export function withActivityLogging<T extends (...args: any[]) => any>(
       const duration = Date.now() - startTime;
       
       // Log error
-      await logToolCall(options.toolName, `${options.description} - Failed`, {
+      await options.logToolCall(options.toolName, `${options.description} - Failed`, {
         status: "error",
         agentId: options.agentId,
         metadata: { 
@@ -59,29 +90,30 @@ export function withActivityLogging<T extends (...args: any[]) => any>(
 }
 
 // Helper to wrap file operations with logging
+// Must be called from within a React component or hook
 export function withFileLogging<T extends (...args: any[]) => any>(
   fn: T,
   options: {
     operation: string;
     getPath: (...args: any[]) => string;
     agentId?: string;
+    logFileOperation: LogFileOperationFn;
   }
 ): T {
   return (async (...args: any[]) => {
-    const { logFileOperation } = useActivityLogger();
     const filePath = options.getPath(...args);
     
     try {
       const result = await fn(...args);
       
-      await logFileOperation(options.operation, filePath, {
+      await options.logFileOperation(options.operation, filePath, {
         status: "success",
         agentId: options.agentId,
       });
       
       return result;
     } catch (error: any) {
-      await logFileOperation(options.operation, filePath, {
+      await options.logFileOperation(options.operation, filePath, {
         status: "error",
         agentId: options.agentId,
         metadata: { errorMessage: error.message },
@@ -93,6 +125,7 @@ export function withFileLogging<T extends (...args: any[]) => any>(
 }
 
 // Batch log multiple activities
+// Must be called from within a React component or hook
 export async function batchLogActivities(
   activities: Array<{
     actionType: string;
@@ -100,10 +133,9 @@ export async function batchLogActivities(
     status?: "success" | "error" | "pending";
     metadata?: any;
   }>,
-  agentId: string
+  agentId: string,
+  logActivity: LogActivityFn
 ) {
-  const { logActivity } = useActivityLogger();
-  
   const results = [];
   for (const activity of activities) {
     const result = await logActivity({

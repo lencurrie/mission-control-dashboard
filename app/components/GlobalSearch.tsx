@@ -76,7 +76,7 @@ export function GlobalSearch({
           limit: 20,
         }
       : "skip"
-  );
+  ) as SearchResult[] | undefined;
 
   const handleClear = () => {
     setQuery("");
